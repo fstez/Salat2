@@ -1,0 +1,6 @@
+@Salat_HostAddress = http://localhost:5237
+
+GET {{Salat_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
