@@ -9,7 +9,9 @@ builder.WebHost.UseUrls("http://localhost:5000");
 // Добавляем DbContext
 builder.Services.AddDbContext<SalatDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("Default") ??
-                     "Server=(localdb)\\MSSQLLocalDB;Database=SalatDb_New1;Trusted_Connection=True;"));
+                     "Server=(localdb)\\MSSQLLocalDB;Database=SalatDb_New1;Trusted_Connection=True;",
+        sqlOptions => sqlOptions.EnableRetryOnFailure())
+);
 
 // Добавляем контроллеры
 builder.Services.AddControllers().AddJsonOptions(o =>

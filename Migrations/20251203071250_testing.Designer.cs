@@ -11,15 +11,15 @@ using Salat.Data;
 namespace Salat.Migrations
 {
     [DbContext(typeof(SalatDbContext))]
-    [Migration("20251113143034_intitial")]
-    partial class intitial
+    [Migration("20251203071250_testing")]
+    partial class testing
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.11")
+                .HasAnnotation("ProductVersion", "8.0.22")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -59,7 +59,7 @@ namespace Salat.Migrations
                     b.Property<int>("FoodItemId")
                         .HasColumnType("int");
 
-                    b.Property<double>("QuantityGrams")
+                    b.Property<double>("Ratio")
                         .HasColumnType("float");
 
                     b.HasKey("Id");

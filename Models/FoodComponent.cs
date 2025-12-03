@@ -14,33 +14,35 @@ namespace Salat.Models
         public int FoodItemId { get; set; }
         public FoodItem? FoodItem { get; set; }
 
+        // --- НОВОЕ поле: пропорция ---
         [Required]
-        public double QuantityGrams { get; set; }
+        public double Ratio { get; set; }
 
-        // Расчёт макросов по весу
-        public double ProteinGrams(double scale = 1.0)
+
+        // Расчёт веса компонента при данном итоговом весе
+        public double Grams(double totalWeight, double sumRatio)
         {
-            decimal pct = (decimal)(FoodItem?.ProteinPct ?? 0);  // Преобразуем double? в decimal
-            return Math.Round((double)(pct / 100 * (decimal)QuantityGrams * (decimal)scale), 3); // Приводим к double для результата
+            if (sumRatio == 0) return 0;
+            return Math.Round(totalWeight * (Ratio / sumRatio), 3);
         }
 
-        public double FatGrams(double scale = 1.0)
+        // Макросы для итогового веса
+        public double ProteinGrams(double grams)
         {
-            decimal pct = (decimal)(FoodItem?.FatPct ?? 0); // Преобразуем double? в decimal
-            return Math.Round((double)(pct / 100 * (decimal)QuantityGrams * (decimal)scale), 3); // Приводим к double для результата
+            decimal pct = (decimal)(FoodItem?.ProteinPct ?? 0);
+            return Math.Round((double)(pct / 100 * (decimal)grams), 3);
         }
 
-        public double CarbsGrams(double scale = 1.0)
+        public double FatGrams(double grams)
         {
-            decimal pct = (decimal)(FoodItem?.CarbsPct ?? 0); // Преобразуем double? в decimal
-            return Math.Round((double)(pct / 100 * (decimal)QuantityGrams * (decimal)scale), 3); // Приводим к double для результата
+            decimal pct = (decimal)(FoodItem?.FatPct ?? 0);
+            return Math.Round((double)(pct / 100 * (decimal)grams), 3);
         }
 
-        public double WeightByScale(double targetWeight, double totalWeight)
+        public double CarbsGrams(double grams)
         {
-            if (totalWeight == 0) return 0;
-            double factor = targetWeight / totalWeight;
-            return Math.Round(QuantityGrams * factor, 3);
+            decimal pct = (decimal)(FoodItem?.CarbsPct ?? 0);
+            return Math.Round((double)(pct / 100 * (decimal)grams), 3);
         }
     }
 }

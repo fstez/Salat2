@@ -12,25 +12,40 @@ namespace Salat.Models
 
         public List<FoodComponent> Components { get; set; } = new();
 
-        // Общий вес и макросы
-        public double TotalWeightGrams() => Components.Sum(c => c.QuantityGrams);
-        public double TotalProteinGrams() => Components.Sum(c => c.ProteinGrams());
-        public double TotalFatGrams() => Components.Sum(c => c.FatGrams());
-        public double TotalCarbsGrams() => Components.Sum(c => c.CarbsGrams());
+        // Сумма пропорций
+        public double TotalRatio() => Components.Sum(c => c.Ratio);
 
 
-
-        // Масштабирование компонентов
-        public (double factor, IEnumerable<(string item, double grams)> list) ScaleTo(double targetGrams)
+        // Вычисление макросов при заданном итоговом весе
+        public (double totalWeight, double protein, double fat, double carbs) Macros(double targetWeight)
         {
-            double total = TotalWeightGrams();
-            double factor = total == 0 ? 0 : targetGrams / total;
+            double sumRatio = TotalRatio();
+            if (sumRatio == 0)
+                return (0, 0, 0, 0);
 
-            var list = Components.Select(c =>
-                (c.FoodItem?.Name ?? $"#{c.FoodItemId}", Math.Round(c.QuantityGrams * factor, 3)));
+            double protein = 0, fat = 0, carbs = 0;
 
-            return (factor, list);
+            foreach (var c in Components)
+            {
+                double grams = c.Grams(targetWeight, sumRatio);
+                protein += c.ProteinGrams(grams);
+                fat += c.FatGrams(grams);
+                carbs += c.CarbsGrams(grams);
+            }
+
+            return (targetWeight,
+                    Math.Round(protein, 3),
+                    Math.Round(fat, 3),
+                    Math.Round(carbs, 3));
         }
 
+
+        // Список ингредиентов в граммах при scale
+        public IEnumerable<(string item, double grams)> ScaleTo(double targetWeight)
+        {
+            double sumRatio = TotalRatio();
+            foreach (var c in Components)
+                yield return (c.FoodItem?.Name ?? $"#{c.FoodItemId}", c.Grams(targetWeight, sumRatio));
+        }
     }
 }

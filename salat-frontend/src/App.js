@@ -17,7 +17,8 @@ export default function App() {
     const [selected, setSelected] = useState(null);
     const [newItem, setNewItem] = useState({ name: "", proteinPct: 0, fatPct: 0, carbsPct: 0 });
     const [newFood, setNewFood] = useState("");
-    const [newComp, setNewComp] = useState({ foodItemId: 0, quantityGrams: 0 });
+    const [newComp, setNewComp] = useState({ foodItemId: 0, ratio: 0 });
+
     const [macros, setMacros] = useState(null);
     const [scale, setScale] = useState(5000);
 
@@ -58,8 +59,9 @@ export default function App() {
 
     async function addComponent() {
         if (!selected) return alert("Vali toit!");
-        if (!newComp.foodItemId || !newComp.quantityGrams) return alert("Vali toiduaine ja kogus!");
-        await api(`/api/salat/food/${selected}/component`, { method: "POST", body: JSON.stringify(newComp) });
+        if (!newComp.foodItemId || !newComp.ratio) return alert("Vali toiduaine ja proportsioon!");
+        await api(`/api/salat/food/${selected}/component`, { method: "POST", body: JSON.stringify(newComp)
+ });
         await loadAll();
     }
 
@@ -69,7 +71,7 @@ export default function App() {
     }
 
     return (
-        <div className="app">
+        <div className="app">   
             <h1 className="h1">Kartulisalati rakendus <span className="badge">React + .NET API</span></h1>
 
             <div className="grid">
@@ -91,11 +93,12 @@ export default function App() {
                             <label>Valk (%)</label>
                             <input
                                 type="number"
-                                step="0.1"
-                                placeholder="2.5"
-                                value={newItem.proteinPct}
-                                onChange={e => setNewItem({ ...newItem, proteinPct: +e.target.value })}
+                                placeholder="proportsioon"
+                                value={newComp.ratio}
+                                onChange={e => setNewComp({ ...newComp, ratio: +e.target.value })}
                             />
+
+
                             <small>Valgud (proteiinid)</small>
                         </div>
 
@@ -158,27 +161,37 @@ export default function App() {
                                 {selectedFood.components.map(c => (
                                     <li key={c.id}>
                                         <span>{c.foodItem?.name}</span>
-                                        <strong>{c.quantityGrams} proportsioonid</strong>
+                                        <strong>{c.ratio} proportsioonid</strong>
                                     </li>
                                 ))}
                             </ul>
 
                             <h3 className="h3">Lisa komponent</h3>
                             <div className="comp-row">
-                                <select value={newComp.foodItemId} onChange={e => setNewComp({ ...newComp, foodItemId: +e.target.value })}>
+                                <select
+                                    value={newComp.foodItemId}
+                                    onChange={e => setNewComp({ ...newComp, foodItemId: +e.target.value })}
+                                >
                                     <option value="0">— vali toiduaine —</option>
                                     {items.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
                                 </select>
-                                <input type="number" placeholder="kogus g" value={newComp.quantityGrams}
-                                    onChange={e => setNewComp({ ...newComp, quantityGrams: +e.target.value })} />
+
+                                <input
+                                    type="number"
+                                    placeholder="proportsioon"
+                                    value={newComp.ratio}
+                                    onChange={e => setNewComp({ ...newComp, ratio: +e.target.value })}
+                                />
+
                                 <button onClick={addComponent}>Lisa</button>
                             </div>
+
 
                             <div className="row--inline mtop">
                                 <input type="number" value={scale} onChange={e => setScale(+e.target.value)} />
                                 <button onClick={showMacros}>Näita makrosid</button>
                             </div>
-
+                                                                                                                                          
                             {macros && (
                                 <pre className="pre">{JSON.stringify(macros, null, 2)}</pre>
                             )}

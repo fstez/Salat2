@@ -5,7 +5,7 @@
 namespace Salat.Migrations
 {
     /// <inheritdoc />
-    public partial class intitial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

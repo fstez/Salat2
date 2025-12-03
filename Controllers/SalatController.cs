@@ -59,30 +59,37 @@ namespace Salat.Controllers
         }
 
         [HttpGet("food/{id}/macros")]
-        public async Task<IActionResult> Macros(int id, [FromQuery] double? scale)
+        public async Task<IActionResult> Macros(int id, [FromQuery] double scale = 1000)
         {
-            var f = await _db.Foods.Include(x => x.Components).ThenInclude(c => c.FoodItem)
-                                   .FirstOrDefaultAsync(x => x.Id == id);
+            var f = await _db.Foods
+                .Include(x => x.Components)
+                .ThenInclude(c => c.FoodItem)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (f == null) return NotFound();
 
-            var total = new
+            var total = f.Macros(scale);
+            var list = f.ScaleTo(scale).ToList();
+
+            return Ok(new
             {
-                weight = f.TotalWeightGrams(),
-                protein = f.TotalProteinGrams(),
-                fat = f.TotalFatGrams(),
-                carbs = f.TotalCarbsGrams()
-            };
-
-            if (scale is null) return Ok(new { total });
-
-            var (factor, list) = f.ScaleTo(scale.Value);
-            var scaled = list.Select(x => new { item = x.item, grams = x.grams }).ToList();
-
-            return Ok(new { total, scaleTo = scale, factor, list = scaled });
+                totalWeight = scale,
+                macros = new
+                {
+                    protein = total.protein,
+                    fat = total.fat,
+                    carbs = total.carbs
+                },
+                components = list.Select(x => new { item = x.item, grams = x.grams })
+            });
         }
+
 
         [HttpGet("fooditems")]
         public async Task<IEnumerable<FoodItem>> GetFoodItems() =>
             await _db.FoodItems.OrderBy(x => x.Name).ToListAsync();
     }
+            
 }
+
+
